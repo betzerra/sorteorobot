@@ -119,7 +119,7 @@ Estos son mis comandos:
 - */sorteo* ¡HACE EL SORTEO! (duh)
 - */reset* quita a todos del sorteo
 
-[Leer más](https://www.betzerra.com/sorteo-bot).'
+[Leer más](https://betzerra.com/sorteo-bot-telegram).'
 
     @bot.api.send_message(
       chat_id: chat_id,
