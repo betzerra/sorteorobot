@@ -30,6 +30,12 @@ class RaffleController
     holder = holder_from_message(message)
     @raffle.add_holder(chat_id, holder)
 
+    @bot.api.send_message(
+      chat_id: chat_id,
+      text: '👍',
+      reply_to_message_id: message['message_id']
+    )
+
     @logger.info("Adding #{holder.full_name} (#{holder.id})")
   end
 
