@@ -27,16 +27,21 @@ class RaffleController
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holder = holder_from_message(message)
-    @raffle.add_holder(chat_id, holder)
+    begin
+      holder = holder_from_message(message)
+      @raffle.add_holder(chat_id, holder)
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: '👍',
-      reply_to_message_id: message['message_id']
-    )
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: '👍',
+        reply_to_message_id: message['message_id']
+      )
 
-    @logger.info("Adding #{holder.full_name} (#{holder.id})")
+      @logger.info("Adding #{holder.full_name} (#{holder.id})")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def remove_holder(message)
