@@ -157,10 +157,15 @@ Estos son mis comandos:
     from = message['from']['first_name']
     return if from.nil?
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: "Hola, #{from}. No te entiendo."
-    )
+    begin
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: "Hola, #{from}. No te entiendo."
+      )
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def handle_data(data)
