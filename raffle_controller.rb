@@ -176,7 +176,8 @@ Estos son mis comandos:
     begin
       @bot.api.send_message(
         chat_id: chat_id,
-        text: "Hola, #{from}. No te entiendo. \n\nEscribe */help@sorteorobot* para más información o lee este [blog post](https://betzerra.com/sorteo-bot-telegram)"
+        text: "Hola, #{from}. No te entiendo. \n\nEscribe */help@sorteorobot* para más información o lee este [blog post](https://betzerra.com/sorteo-bot-telegram)",
+        parse_mode: 'markdown'
       )
     rescue => e
       @logger.error(e.message)
