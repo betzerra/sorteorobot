@@ -142,12 +142,17 @@ Estos son mis comandos:
 
 [Leer más](https://betzerra.com/sorteo-bot-telegram).'
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: text,
-      parse_mode: 'markdown',
-      disable_web_page_preview: true
-    )
+    begin
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: text,
+        parse_mode: 'markdown',
+        disable_web_page_preview: true
+      )
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def command_not_found_message(message)
