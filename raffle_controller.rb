@@ -144,11 +144,12 @@ class RaffleController
     text = '¡Hola! Soy un bot que hace sorteos en grupos de Telegram.
 Estos son mis comandos:
 
-- */agregarme* te agrega al sorteo
-- */quitarme* te quita del sorteo
-- */concursantes* muestra las personas que participan
-- */sorteo* ¡HACE EL SORTEO! (duh)
-- */reset* quita a todos del sorteo
+- */agregarme@sorteorobot* te agrega al sorteo
+- */quitarme@sorteorobot* te quita del sorteo
+- */concursantes@sorteorobot* muestra las personas que participan
+- */sorteo@sorteorobot* ¡HACE EL SORTEO! (duh)
+- */reset@sorteorobot* quita a todos del sorteo
+- */help@sorteorobot* muestra esta ayuda
 
 [Leer más](https://betzerra.com/sorteo-bot-telegram).'
 
