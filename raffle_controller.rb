@@ -121,15 +121,20 @@ class RaffleController
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    @raffle.save_holders(chat_id, [])
+    begin
+      @raffle.save_holders(chat_id, [])
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: 'Reseteado 👍',
-      parse_mode: 'markdown'
-    )
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: 'Reseteado 👍',
+        parse_mode: 'markdown'
+      )
 
-    @logger.info("Reset raffle at #{chat_id}")
+      @logger.info("Reset raffle at #{chat_id}")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def help(message)
