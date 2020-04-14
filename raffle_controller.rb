@@ -48,10 +48,15 @@ class RaffleController
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holder = holder_from_message(message)
-    @raffle.remove_holder(chat_id, holder)
+    begin
+      holder = holder_from_message(message)
+      @raffle.remove_holder(chat_id, holder)
 
-    @logger.info("Removing #{holder.full_name} (#{holder.id})")
+      @logger.info("Removing #{holder.full_name} (#{holder.id})")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def show_holders(message)
