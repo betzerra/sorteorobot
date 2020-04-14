@@ -202,7 +202,7 @@ Estos son mis comandos:
       run_raffle(message)
     when %r{^/reset}
       reset_raffle(message)
-    when %r{^/start}
+    when %r{^/(start|help)}
       help(message)
     else
       command_not_found_message(message)
