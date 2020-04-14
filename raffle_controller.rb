@@ -58,25 +58,30 @@ class RaffleController
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holders = @raffle.holders_from(chat_id)
+    begin
+      holders = @raffle.holders_from(chat_id)
 
-    if holders.empty?
+      if holders.empty?
+        @bot.api.send_message(
+          chat_id: chat_id,
+          text: 'No hay nadie 😱',
+          parse_mode: 'markdown'
+        )
+        return
+      end
+      list = holders.map { |h| "- #{h.full_name}" }
+
       @bot.api.send_message(
         chat_id: chat_id,
-        text: 'No hay nadie 😱',
+        text: list.join("\n"),
         parse_mode: 'markdown'
       )
-      return
+
+      @logger.info("Show holders at #{chat_id}")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
     end
-    list = holders.map { |h| "- #{h.full_name}" }
-
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: list.join("\n"),
-      parse_mode: 'markdown'
-    )
-
-    @logger.info("Show holders at #{chat_id}")
   end
 
   def run_raffle(message)
