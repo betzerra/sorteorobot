@@ -27,89 +27,114 @@ class RaffleController
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holder = holder_from_message(message)
-    @raffle.add_holder(chat_id, holder)
+    begin
+      holder = holder_from_message(message)
+      @raffle.add_holder(chat_id, holder)
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: '👍',
-      reply_to_message_id: message['message_id']
-    )
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: '👍',
+        reply_to_message_id: message['message_id']
+      )
 
-    @logger.info("Adding #{holder.full_name} (#{holder.id})")
+      @logger.info("Adding #{holder.full_name} (#{holder.id})")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def remove_holder(message)
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holder = holder_from_message(message)
-    @raffle.remove_holder(chat_id, holder)
+    begin
+      holder = holder_from_message(message)
+      @raffle.remove_holder(chat_id, holder)
 
-    @logger.info("Removing #{holder.full_name} (#{holder.id})")
+      @logger.info("Removing #{holder.full_name} (#{holder.id})")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def show_holders(message)
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holders = @raffle.holders_from(chat_id)
+    begin
+      holders = @raffle.holders_from(chat_id)
 
-    if holders.empty?
+      if holders.empty?
+        @bot.api.send_message(
+          chat_id: chat_id,
+          text: 'No hay nadie 😱',
+          parse_mode: 'markdown'
+        )
+        return
+      end
+      list = holders.map { |h| "- #{h.full_name}" }
+
       @bot.api.send_message(
         chat_id: chat_id,
-        text: 'No hay nadie 😱',
+        text: list.join("\n"),
         parse_mode: 'markdown'
       )
-      return
+
+      @logger.info("Show holders at #{chat_id}")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
     end
-    list = holders.map { |h| "- #{h.full_name}" }
-
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: list.join("\n"),
-      parse_mode: 'markdown'
-    )
-
-    @logger.info("Show holders at #{chat_id}")
   end
 
   def run_raffle(message)
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    holder = @raffle.random_holder_from_chat(chat_id)
+    begin
+      holder = @raffle.random_holder_from_chat(chat_id)
 
-    if holder.nil?
+      if holder.nil?
+        @bot.api.send_message(
+          chat_id: chat_id,
+          text: 'No hay nadie en este grupo para participar.'
+        )
+        return
+      end
+
       @bot.api.send_message(
         chat_id: chat_id,
-        text: 'No hay nadie en este grupo para participar.'
+        text: "Ganó *#{holder.full_name}* 🙌",
+        parse_mode: 'markdown'
       )
-      return
+
+      @logger.info("Sampled #{holder.full_name} (#{holder.id})")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
     end
-
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: "Ganó *#{holder.full_name}* 🙌",
-      parse_mode: 'markdown'
-    )
-
-    @logger.info("Sampled #{holder.full_name} (#{holder.id})")
   end
 
   def reset_raffle(message)
     chat_id = message['chat']['id']
     return if chat_id.nil?
 
-    @raffle.save_holders(chat_id, [])
+    begin
+      @raffle.save_holders(chat_id, [])
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: 'Reseteado 👍',
-      parse_mode: 'markdown'
-    )
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: 'Reseteado 👍',
+        parse_mode: 'markdown'
+      )
 
-    @logger.info("Reset raffle at #{chat_id}")
+      @logger.info("Reset raffle at #{chat_id}")
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def help(message)
@@ -119,20 +144,26 @@ class RaffleController
     text = '¡Hola! Soy un bot que hace sorteos en grupos de Telegram.
 Estos son mis comandos:
 
-- */agregarme* te agrega al sorteo
-- */quitarme* te quita del sorteo
-- */concursantes* muestra las personas que participan
-- */sorteo* ¡HACE EL SORTEO! (duh)
-- */reset* quita a todos del sorteo
+- */agregarme@sorteorobot* te agrega al sorteo
+- */quitarme@sorteorobot* te quita del sorteo
+- */concursantes@sorteorobot* muestra las personas que participan
+- */sorteo@sorteorobot* ¡HACE EL SORTEO! (duh)
+- */reset@sorteorobot* quita a todos del sorteo
+- */help@sorteorobot* muestra esta ayuda
 
 [Leer más](https://betzerra.com/sorteo-bot-telegram).'
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: text,
-      parse_mode: 'markdown',
-      disable_web_page_preview: true
-    )
+    begin
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: text,
+        parse_mode: 'markdown',
+        disable_web_page_preview: true
+      )
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def command_not_found_message(message)
@@ -142,10 +173,16 @@ Estos son mis comandos:
     from = message['from']['first_name']
     return if from.nil?
 
-    @bot.api.send_message(
-      chat_id: chat_id,
-      text: "Hola, #{from}. No te entiendo."
-    )
+    begin
+      @bot.api.send_message(
+        chat_id: chat_id,
+        text: "Hola, #{from}. No te entiendo. \n\nEscribe */help@sorteorobot* para más información o lee este [blog post](https://betzerra.com/sorteo-bot-telegram)",
+        parse_mode: 'markdown'
+      )
+    rescue => e
+      @logger.error(e.message)
+      @logger.error("Backtrace #{e.backtrace.join("\n\t")}")
+    end
   end
 
   def handle_data(data)
@@ -167,7 +204,7 @@ Estos son mis comandos:
       run_raffle(message)
     when %r{^/reset}
       reset_raffle(message)
-    when %r{^/start}
+    when %r{^/(start|help)}
       help(message)
     else
       command_not_found_message(message)
