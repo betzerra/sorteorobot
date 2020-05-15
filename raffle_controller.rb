@@ -79,7 +79,7 @@ class RaffleController
       @bot.api.send_message(
         chat_id: chat_id,
         text: list.join("\n"),
-        parse_mode: 'markdown'
+        parse_mode: 'html'
       )
 
       @logger.info("Show holders at #{chat_id}")
